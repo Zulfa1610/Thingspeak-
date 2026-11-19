@@ -1,0 +1,197 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated dashboard operator profile.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Verified operator email address",
+          "maxLength": 256
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Operator display name",
+          "maxLength": 120
+        },
+        "role": {
+          "type": "string",
+          "enum": ["operator", "admin"],
+          "description": "Access control role"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Profile last updated timestamp"
+        }
+      },
+      "required": ["uid", "email", "displayName", "role", "createdAt", "updatedAt"]
+    },
+    "IoTDevice": {
+      "title": "IoTDevice",
+      "description": "Registered physical or logical IoT monitoring node.",
+      "type": "object",
+      "properties": {
+        "deviceId": {
+          "type": "string",
+          "description": "Unique device identifier",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Owner Firebase Auth UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable device label",
+          "maxLength": 120
+        },
+        "sourceType": {
+          "type": "string",
+          "enum": ["firestore", "rtdb", "thingspeak"],
+          "description": "Primary telemetry transport"
+        },
+        "collectionPath": {
+          "type": "string",
+          "description": "Firestore collection or RTDB path",
+          "maxLength": 256
+        },
+        "heartbeatTimeoutSec": {
+          "type": "number",
+          "description": "Configured heartbeat timeout in seconds"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["online", "offline", "degraded", "unknown"],
+          "description": "Evaluated device connection status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Device registration timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Device metadata update timestamp"
+        }
+      },
+      "required": ["deviceId", "ownerId", "name", "sourceType", "heartbeatTimeoutSec", "status", "createdAt", "updatedAt"]
+    },
+    "SensorReading": {
+      "title": "SensorReading",
+      "description": "Time-series sensor reading ingested from an IoT device.",
+      "type": "object",
+      "properties": {
+        "readingId": {
+          "type": "string",
+          "description": "Unique reading document identifier",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "Parent device identifier",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Parent device owner UID",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source stream identifier",
+          "maxLength": 64
+        },
+        "recordedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Sensor observation timestamp"
+        }
+      },
+      "required": ["readingId", "deviceId", "ownerId", "source", "recordedAt"]
+    },
+    "AlertRule": {
+      "title": "AlertRule",
+      "description": "Configurable threshold or heartbeat alert rule.",
+      "type": "object",
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "ownerId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "sourceId": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "fieldKey": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "fieldLabel": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["warning", "critical"]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["ruleId", "ownerId", "sourceId", "fieldKey", "fieldLabel", "severity", "enabled", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Operator profile records isolated by userId."
+    },
+    "/devices/{deviceId}": {
+      "schema": { "$ref": "#/entities/IoTDevice" },
+      "description": "Registered IoT device metadata owned by an operator."
+    },
+    "/devices/{deviceId}/readings/{readingId}": {
+      "schema": { "$ref": "#/entities/SensorReading" },
+      "description": "Read-only historical and real-time sensor readings for a device."
+    },
+    "/alertRules/{ruleId}": {
+      "schema": { "$ref": "#/entities/AlertRule" },
+      "description": "User-owned sensor threshold alert rules."
+    }
+  }
+}

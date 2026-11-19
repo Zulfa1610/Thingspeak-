@@ -1,0 +1,6 @@
+{
+  "name": "NexusGrid IoT Monitor",
+  "description": "Industrial real-time IoT sensor monitoring dashboard integrating Firebase and ThingSpeak telemetry.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
